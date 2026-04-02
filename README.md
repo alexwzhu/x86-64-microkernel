@@ -4,7 +4,7 @@ A from-scratch microkernel for x86-64, written in C++ and assembly. Following th
 
 ### Dependencies
 
-You need four tools to build and run this. Here's what each one does and why we need it.
+You need four tools to build and run this
 
 #### NASM
 
