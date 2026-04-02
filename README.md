@@ -4,14 +4,14 @@ A from-scratch microkernel for x86-64, written in C++ and assembly. Following th
 
 ### Dependencies
 
-You need four tools to build and run this. Here's what each one does and why we need it.
+You need four tools to build and run this
 
 #### NASM
 
 ```bash
 brew install nasm
 ```
-NASM is an assembler. It takes our `boot.asm` file (which is human-readable x86 assembly) turns it into an object file the linker can work with. We write the bootloader entry point in assembly because the CPU starts in 32-bit protected mode and we need raw control over registers, page tables, and CPU flags to get into 64-bit long mode. C++ cannot do this.
+NASM is an assembler. It takes `boot.asm` file (which is human-readable x86 assembly) turns it into an object file the linker can work with. I write the bootloader entry point in assembly because the CPU starts in 32-bit protected mode and we need raw control over registers, page tables, and CPU flags to get into 64-bit long mode. C++ cannot do this.
 
 #### x86_64-elf-gcc
 
