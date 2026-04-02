@@ -46,7 +46,8 @@ QEMU is an emulator. `qemu-system-x86_64` simulates an entire x86-64 PC.
 Configure then run:
 
 ```bash
-cmake -B build
+rm -rf build
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake
 cmake --build build --target run
 ```
 
