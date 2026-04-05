@@ -1,4 +1,4 @@
-## x86-64-microkernel
+## In progress x86-64-microkernel
 
 A from-scratch microkernel for x86-64, written in C++ and assembly. Following the OSDev wiki.
 
