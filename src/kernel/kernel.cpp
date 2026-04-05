@@ -1,33 +1,51 @@
-#include "kernel/vga.h"
+#include "kernel/serial.h"
+#include "kernel/gdt.h"
+#include "kernel/idt.h"
+#include "kernel/pic.h"
+#include "kernel/pit.h"
+#include "kernel/multiboot2.h"
+#include "kernel/pmm.h"
+#include "kernel/vmm.h"
+#include "kernel/heap.h"
 
-static inline void serial_write(char c) {
-    // Write to COM1 (port 0x3F8)
-    asm volatile("outb %0, %1" : : "a"(c), "Nd"(static_cast<uint16_t>(0x3F8)));
-}
+extern "C" void kernel_main(uint32_t* multiboot_info) {
+    serial::init();
+    serial::print("Booting kernel...\n");
 
-static void serial_print(const char* msg) {
-    for (int i = 0; msg[i] != '\0'; i++) {
-        serial_write(msg[i]);
-    }
-}
+    gdt::init();
+    serial::print("GDT loaded\n");
 
-extern "C" void kernel_main() {
-    const char* msg = "Hello, kernel!";
+    idt::init();
+    serial::print("IDT loaded\n");
 
-    // Print to serial (always works)
-    serial_print(msg);
-    serial_write('\n');
+    pic::init();
+    serial::print("PIC remapped\n");
 
-    // Also try VGA text buffer (works in BIOS mode)
-    const uint8_t color = vga::make_color(vga::WHITE, vga::BLACK);
-    for (int i = 0; i < vga::WIDTH * vga::HEIGHT; i++) {
-        vga::BUFFER[i] = vga::entry(' ', color);
-    }
-    for (int i = 0; msg[i] != '\0'; i++) {
-        vga::BUFFER[i] = vga::entry(msg[i], color);
-    }
+    pit::init(100);
+    serial::print("PIT started at 100 Hz\n");
 
-    // Halt
+    serial::print("Parsing memory map...\n");
+    multiboot2::parse(multiboot_info);
+
+    serial::print("PMM init...\n");
+    pmm::init();
+
+    serial::print("VMM init...\n");
+    vmm::init();
+
+    serial::print("Heap init...\n");
+    heap::init();
+
+    // quick test: allocate, use, free
+    void* p = heap::kmalloc(128);
+    serial::print("kmalloc(128) = ");
+    serial::print_hex(reinterpret_cast<uint64_t>(p));
+    serial::print("\n");
+    heap::kfree(p);
+
+    asm volatile("sti");
+    serial::print("Interrupts enabled\n");
+
     while (true) {
         asm volatile("hlt");
     }
